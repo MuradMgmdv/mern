@@ -1,6 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import { validationResult } from 'express-validator'; // проверка корректную ли информацию отправил нам пользователь
+import { registerValidation } from './validations/auth.js';
 
 mongoose
   .connect(
@@ -16,24 +18,14 @@ const PORT = 3001;
 // для того чтобы бэк смог прочитать json который придет с фронта
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.send('Hello world!!!');
-});
-
-app.post('/auth/login', (req, res) => {
-  //   console.log(req.body);
-
-  // генерируем токен, зашифровываем значения которые нам пришлет пользователь
-  const token = jwt.sign(
-    {
-      email: req.body.email,
-      fullName: 'Дональд Трамп',
-    },
-    'secret123',
-  );
+app.post('/auth/register', registerValidation, (req, res) => {
+  const errors = validationResult(req); // вытаскиваем все ошибки из запроса
+  if (!errors.isEmpty()) {
+    // если есть ошибки то возврашаем ответ 400 и возвращаем все ошибки которые смогли проваледировать
+    return res.send(400).json(errors.array());
+  }
   res.json({
     success: true,
-    token,
   });
 });
 
