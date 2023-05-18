@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 const UserSchema = new mongoose.Schema(
   {
     // таблица будет хранить в себе fullname, email, passwordHash, avatarUrl
-    fullname: {
+    fullName: {
       type: String, // указываем тип
       required: true, // указываем на обязательность заполнения
     },
