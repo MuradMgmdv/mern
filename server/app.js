@@ -1,5 +1,6 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt'; // библиотека которая шифрует пароль
 import mongoose from 'mongoose';
 import { validationResult } from 'express-validator'; // проверка корректную ли информацию отправил нам пользователь
 import { registerValidation } from './validations/auth.js';
@@ -19,19 +20,24 @@ const PORT = 3001;
 // для того чтобы бэк смог прочитать json который придет с фронта
 app.use(express.json());
 
-app.post('/auth/register', registerValidation, (req, res) => {
+app.post('/auth/register', registerValidation, async (req, res) => {
   const errors = validationResult(req); // вытаскиваем все ошибки из запроса
   if (!errors.isEmpty()) {
     // если есть ошибки то возврашаем ответ 400 и возвращаем все ошибки которые смогли проваледировать
     return res.send(400).json(errors.array());
   }
 
+  // шифруем пароль
+  const password = req.body.password;
+  const salt = await bcrypt.genSalt(10);
+  const passwordHash = await bcrypt.hash(password, salt);
+
   // создаем пользователя
   const doc = new UserModel({
-    email: req.body.email,
+    email: req.body.email, // передаем в email данные, которые придут с req.body
     fullName: req.body.fullName,
-    passwordHash: req.body.passwordHash,
     avatarUrl: req.body.avatarUrl,
+    passwordHash,
   });
 
   res.json({
