@@ -8,7 +8,7 @@ import UserModel from './models/User.js';
 
 mongoose
   .connect(
-    'mongodb+srv://muraddevmag:Tamik200@cluster0.7xg2y6k.mongodb.net/?retryWrites=true&w=majority',
+    'mongodb+srv://muraddevmag:Tamik200@cluster0.7xg2y6k.mongodb.net/blog?retryWrites=true&w=majority',
   )
   .then(() => console.log('DB ok'))
   .catch((err) => console.log('DB error'));
@@ -21,28 +21,34 @@ const PORT = 3001;
 app.use(express.json());
 
 app.post('/auth/register', registerValidation, async (req, res) => {
-  const errors = validationResult(req); // вытаскиваем все ошибки из запроса
-  if (!errors.isEmpty()) {
-    // если есть ошибки то возврашаем ответ 400 и возвращаем все ошибки которые смогли проваледировать
-    return res.send(400).json(errors.array());
+  try {
+    const errors = validationResult(req); // вытаскиваем все ошибки из запроса
+    if (!errors.isEmpty()) {
+      // если есть ошибки то возврашаем ответ 400 и возвращаем все ошибки которые смогли проваледировать
+      return res.send(400).json(errors.array());
+    }
+
+    // шифруем пароль
+    const password = req.body.password;
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // создание пользователя
+    const doc = new UserModel({
+      email: req.body.email, // передаем в email данные, которые придут с req.body
+      fullName: req.body.fullName,
+      avatarUrl: req.body.avatarUrl,
+      passwordHash,
+    });
+
+    // передаем данные пользователя в переменную user, которого создали в mongoDB и сохранили при помощи -save
+    const user = await doc.save();
+    // и возвращаем информацию о пользователе в виде json
+    res.json(user);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: 'Не удалось зарегистрироваться' });
   }
-
-  // шифруем пароль
-  const password = req.body.password;
-  const salt = await bcrypt.genSalt(10);
-  const passwordHash = await bcrypt.hash(password, salt);
-
-  // создаем пользователя
-  const doc = new UserModel({
-    email: req.body.email, // передаем в email данные, которые придут с req.body
-    fullName: req.body.fullName,
-    avatarUrl: req.body.avatarUrl,
-    passwordHash,
-  });
-
-  res.json({
-    success: true,
-  });
 });
 
 app.listen(PORT, () => {
