@@ -31,20 +31,37 @@ app.post('/auth/register', registerValidation, async (req, res) => {
     // шифруем пароль
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
+    const hash = await bcrypt.hash(password, salt);
 
     // создание пользователя
     const doc = new UserModel({
       email: req.body.email, // передаем в email данные, которые придут с req.body
       fullName: req.body.fullName,
       avatarUrl: req.body.avatarUrl,
-      passwordHash,
+      passwordHash: hash,
     });
 
     // передаем данные пользователя в переменную user, которого создали в mongoDB и сохранили при помощи -save
     const user = await doc.save();
+
+    // создаем токен
+    const token = jwt.sign(
+      {
+        _id: user._id, // шифруем id
+      },
+      'secret123', // ключ secret123 для токена
+      {
+        expiresIn: '30d', // указываем сколько будет жить токен, указал срок 30 дней
+      },
+    );
+
+    const { passwordHash, ...userData } = user._doc; // для того чтобы пароль не сохранялся в ответе json, вытаскиваем его оттуда
+
     // и возвращаем информацию о пользователе в виде json
-    res.json(user);
+    res.json({
+      ...userData,
+      token,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Не удалось зарегистрироваться' });
