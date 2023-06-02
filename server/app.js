@@ -1,7 +1,7 @@
 import express from 'express';
 
 import mongoose from 'mongoose';
-import { registerValidation } from './validations/auth.js';
+import { registerValidation, loginValidation } from './auth.js';
 import checkAuth from './middleware/checkAuth.js';
 import { getMe, login, register } from './controllers/UserController.js';
 
@@ -18,7 +18,7 @@ const PORT = 3001;
 // для того чтобы бэк смог прочитать json который придет с фронта
 app.use(express.json());
 
-app.post('/auth/login', login);
+app.post('/auth/login', loginValidation, login);
 
 app.post('/auth/register', registerValidation, register);
 
