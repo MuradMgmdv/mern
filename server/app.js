@@ -3,7 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { registerValidation } from './validations/auth.js';
 import checkAuth from './middleware/checkAuth.js';
-import { getMe, login, register } from '../client/controllers/UserController.js';
+import { getMe, login, register } from './controllers/UserController.js';
 
 mongoose
   .connect(
