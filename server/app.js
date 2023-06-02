@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { validationResult } from 'express-validator'; // проверка корректную ли информацию отправил нам пользователь
 import { registerValidation } from './validations/auth.js';
 import UserModel from './models/User.js';
+import checkAuth from './middleware/checkAuth.js';
 
 mongoose
   .connect(
@@ -50,7 +51,6 @@ app.post('/auth/login', async (req, res) => {
     );
 
     const { passwordHash, ...userData } = user._doc;
-
     res.json({
       ...userData,
       token,
@@ -106,6 +106,27 @@ app.post('/auth/register', registerValidation, async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: 'Не удалось зарегистрироваться' });
+  }
+});
+
+// проверяем можем ли мы получить информацию о себе
+app.get('/auth/me', checkAuth, async (req, res) => {
+  try {
+    const user = await UserModel.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        message: 'Пользователь не найден',
+      });
+    }
+
+    const { passwordHash, ...userData } = user._doc;
+
+    res.json(userData);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: 'Нет доступа',
+    });
   }
 });
 
