@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { registerValidation, loginValidation, postCreateValidation } from './auth.js';
 import checkAuth from './middleware/checkAuth.js';
 import { getMe, login, register } from './controllers/UserController.js';
-import { create, getAll } from './controllers/PostController.js';
+import { create, getAll, getOne } from './controllers/PostController.js';
 
 mongoose
   .connect(
@@ -26,8 +26,8 @@ app.post('/auth/register', registerValidation, register);
 // проверяем можем ли мы получить информацию о себе
 app.get('/auth/me', checkAuth, getMe);
 
-app.get('/posts',  getAll);
-// app.get('/posts/:id', PostController.getOne);
+app.get('/posts', getAll);
+app.get('/posts/:id', getOne);
 app.post('/posts', checkAuth, postCreateValidation, create);
 // app.delete('/auth/me', PostController.remove);
 // app.patch('/auth/me', PostController.update);

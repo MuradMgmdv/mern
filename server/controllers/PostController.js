@@ -12,6 +12,46 @@ export const getAll = async (req, res) => {
   }
 };
 
+export const getOne = async (req, res) => {
+  try {
+    const postId = req.params.id;
+    // получение одной статьи и обновление, чтобы count при просмотрах увеличивался
+    PostModel.findOneAndUpdate(
+      {
+        _id: postId,
+      },
+      {
+        $inc: { viewsCount: 1 }, // увеличение просмотром на 1
+      },
+      {
+        returnDocument: 'after',
+      },
+      // проверка на ошибку
+      (err, doc) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: 'Не удалось вернуть статью',
+          });
+        }
+        // если undefined
+        if (!doc) {
+          return res.status(404).json({
+            message: 'Статья не найдена',
+          });
+        }
+        // если статья нашлась, то возвращаем документ
+        res.json(doc);
+      },
+    );
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: 'Не удалось получить статьи',
+    });
+  }
+};
+
 export const create = async (req, res) => {
   try {
     const doc = new PostModel({
