@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-
+// middleware которая чекает авторизованного пользователя
 export default (req, res, next) => {
   // если есть авторизованный пользователь, вытаскиваем его токен и убираем заголов Bearer у токена
   const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
