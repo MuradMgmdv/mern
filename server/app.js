@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { registerValidation, loginValidation, postCreateValidation } from './auth.js';
 import checkAuth from './middleware/checkAuth.js';
 import { getMe, login, register } from './controllers/UserController.js';
-import { create, getAll, getOne, remove } from './controllers/PostController.js';
+import { create, getAll, getOne, remove, update } from './controllers/PostController.js';
 
 mongoose
   .connect(
@@ -30,7 +30,7 @@ app.get('/posts', getAll);
 app.get('/posts/:id', getOne);
 app.post('/posts', checkAuth, postCreateValidation, create);
 app.delete('/posts/:id', checkAuth, remove);
-// app.patch('/auth/me', PostController.update);
+app.patch('/posts/:id', checkAuth, update);
 
 app.listen(PORT, () => {
   console.log('Server ok!', PORT);
