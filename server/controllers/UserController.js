@@ -5,12 +5,6 @@ import UserModel from '../models/User.js';
 
 export const register = async (req, res) => {
   try {
-    const errors = validationResult(req); // вытаскиваем все ошибки из запроса
-    if (!errors.isEmpty()) {
-      // если есть ошибки то возврашаем ответ 400 и возвращаем все ошибки которые смогли проваледировать
-      return res.send(400).json(errors.array());
-    }
-
     // шифруем пароль
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);

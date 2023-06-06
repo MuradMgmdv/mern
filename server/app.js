@@ -6,6 +6,7 @@ import { registerValidation, loginValidation, postCreateValidation } from './aut
 import checkAuth from './middleware/checkAuth.js';
 import { getMe, login, register } from './controllers/UserController.js';
 import { create, getAll, getOne, remove, update } from './controllers/PostController.js';
+import handleValidationErrors from './middleware/handleValidationErrors.js';
 
 mongoose
   .connect(
@@ -37,9 +38,9 @@ app.use(express.json());
 // мидлвара которая проверяет, если придет запрос на /uploads, то отправляет запрос на папку uploads и в ней ищет файл, который я пытаюсь загрузить
 app.use('/uploads', express.static('uploads'));
 
-app.post('/auth/login', loginValidation, login);
+app.post('/auth/login', loginValidation, handleValidationErrors, login);
 
-app.post('/auth/register', registerValidation, register);
+app.post('/auth/register', registerValidation, handleValidationErrors, register);
 
 // проверяем можем ли мы получить информацию о себе
 app.get('/auth/me', checkAuth, getMe);
@@ -53,9 +54,9 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 
 app.get('/posts', getAll);
 app.get('/posts/:id', getOne);
-app.post('/posts', checkAuth, postCreateValidation, create);
+app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, create);
 app.delete('/posts/:id', checkAuth, remove);
-app.patch('/posts/:id', checkAuth, update);
+app.patch('/posts/:id', checkAuth, postCreateValidation, update);
 
 app.listen(PORT, () => {
   console.log('Server ok!', PORT);
