@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 
 import mongoose from 'mongoose';
 import { registerValidation, loginValidation, postCreateValidation } from './auth.js';
@@ -16,8 +17,25 @@ mongoose
 const app = express();
 const PORT = 3001;
 
+// хранилище где будем сохранять все картинки
+const storage = multer.diskStorage({
+  // когда будет любой файл загружаться, будет выполняться функция которая вернет путь этого файла
+  destination: (_, __, cb) => {
+    cb(null, 'uploads'); // объясняем что файлы эта функция будет сохранять в папку 'uploads'
+  },
+  // перед тем как этот файл сохранить, функция объяснит как называть этот файл
+  filename: (_, file, cb) => {
+    // 'file' название файла будет передаваться при загрузки
+    cb(null, file.originalname); // объясняем что из файла хотим вытащить оригинальное название'
+  },
+});
+
+const upload = multer({ storage }); // для того чтобы работала с express
+
 // для того чтобы бэк смог прочитать json который придет с фронта
 app.use(express.json());
+// мидлвара которая проверяет, если придет запрос на /uploads, то отправляет запрос на папку uploads и в ней ищет файл, который я пытаюсь загрузить
+app.use('/uploads', express.static('uploads'));
 
 app.post('/auth/login', loginValidation, login);
 
@@ -25,6 +43,13 @@ app.post('/auth/register', registerValidation, register);
 
 // проверяем можем ли мы получить информацию о себе
 app.get('/auth/me', checkAuth, getMe);
+
+// загрузка файлов
+app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
+  res.json({
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
 
 app.get('/posts', getAll);
 app.get('/posts/:id', getOne);
