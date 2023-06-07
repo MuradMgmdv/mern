@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { registerValidation, loginValidation, postCreateValidation } from './auth.js';
 import checkAuth from './middleware/checkAuth.js';
 import { getMe, login, register } from './controllers/UserController.js';
-import { create, getAll, getOne, remove, update } from './controllers/PostController.js';
+import { create, getAll, getLastTags, getOne, remove, update } from './controllers/PostController.js';
 import handleValidationErrors from './middleware/handleValidationErrors.js';
 
 mongoose
@@ -17,7 +17,7 @@ mongoose
   .catch((err) => console.log('DB error'));
 
 const app = express();
-const PORT = 3001;
+const PORT = 4444;
 
 // хранилище где будем сохранять все картинки
 const storage = multer.diskStorage({
@@ -54,7 +54,9 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   });
 });
 
+
 app.get('/posts', getAll);
+app.get('/tags', getLastTags);
 app.get('/posts/:id', getOne);
 app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, create);
 app.delete('/posts/:id', checkAuth, remove);
