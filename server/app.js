@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import cors from 'cors';
 
 import mongoose from 'mongoose';
 import { registerValidation, loginValidation, postCreateValidation } from './auth.js';
@@ -35,6 +36,7 @@ const upload = multer({ storage }); // для того чтобы работал
 
 // для того чтобы бэк смог прочитать json который придет с фронта
 app.use(express.json());
+app.use(cors());
 // мидлвара которая проверяет, если придет запрос на /uploads, то отправляет запрос на папку uploads и в ней ищет файл, который я пытаюсь загрузить
 app.use('/uploads', express.static('uploads'));
 
