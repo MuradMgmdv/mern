@@ -17,7 +17,7 @@ mongoose
   .catch((err) => console.log('DB error'));
 
 const app = express();
-const PORT = 4444;
+const PORT = 3001;
 
 // хранилище где будем сохранять все картинки
 const storage = multer.diskStorage({
