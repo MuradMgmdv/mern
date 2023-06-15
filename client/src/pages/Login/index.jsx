@@ -23,6 +23,7 @@ export const Login = () => {
       email: '',
       password: '',
     },
+    mode: 'onChange',
   });
 
   const onSubmit = async (values) => {
@@ -32,7 +33,7 @@ export const Login = () => {
     }
     if ('token' in data.payload) {
       window.localStorage.setItem('token', data.payload.token);
-    } 
+    }
   };
 
   if (isAuth) {
@@ -62,7 +63,7 @@ export const Login = () => {
           {...register('password', { required: 'Укажите пароль' })}
           fullWidth
         />
-        <Button type="submit" size="large" variant="contained" fullWidth>
+        <Button disabled={!isValid} type="submit" size="large" variant="contained" fullWidth>
           Войти
         </Button>
       </form>
