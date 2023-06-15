@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, fetchTags } from '../redux/slices/posts';
 
 export const Home = () => {
+  const userData = useSelector((state) => state.auth.data);
   const dispatch = useDispatch();
   const { posts, tags } = useSelector((state) => state.posts);
 
@@ -17,7 +18,7 @@ export const Home = () => {
   const isTagsLoading = tags.status === 'loading';
   useEffect(() => {
     dispatch(fetchPosts());
-    dispatch(fetchTags())
+    dispatch(fetchTags());
   }, []);
 
   return (
@@ -40,7 +41,8 @@ export const Home = () => {
                 viewsCount={obj.viewsCount}
                 commentsCount={3}
                 tags={obj.tags}
-                isEditable
+                // сравниваем id, чтобы удалять и редактировать мог только тот кто создал пост
+                isEditable={userData?._id === obj.user._id}
               />
             ),
           )}
