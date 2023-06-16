@@ -60,7 +60,7 @@ export const getOne = async (req, res) => {
         // если статья нашлась, то возвращаем документ
         res.json(doc);
       },
-    );
+    ).populate('user');
   } catch (err) {
     console.log(err);
     res.status(500).json({
